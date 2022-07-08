@@ -7,8 +7,9 @@ const handler = async (request, response) => {
     await connectToMongodb();
 
     if (request.method === "GET") {
-      const palette = await Palette.findOne({});
-      return response.json(palette);
+      const searchTerm = { user: request.query.userid };
+      const palettes = await Palette.find(searchTerm).populate("user").exec();
+      return response.json(palettes);
     } else if (request.method === "POST") {
       const newPalette = await Palette.findOneAndReplace(
         { user: mongoose.Types.ObjectId(request.body.user) },
