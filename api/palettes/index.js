@@ -7,8 +7,15 @@ const handler = async (request, response) => {
     await connectToMongodb();
 
     if (request.method === "GET") {
-      const searchTerm = { user: request.query.userid };
-      const palettes = await Palette.find(searchTerm).populate("user").exec();
+      const searchTerm = request.query.userid
+        ? { user: request.query.userid }
+        : {};
+      const palettes = await Palette.find(searchTerm, null, {
+        limit: 10,
+        sort: { savedAt: -1 },
+      })
+        .populate("user")
+        .exec();
       return response.json(palettes);
     } else if (request.method === "POST") {
       const newPalette = await Palette.findOneAndReplace(
